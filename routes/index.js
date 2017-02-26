@@ -3,11 +3,12 @@ var router = express.Router();
 var request = require('request');
 
 var IntegrationBuilder = require('../integration/integration-builder');
-const APIKEY = "c9287e815af0cb24251ba81236f2fad9"; //<========= this will not be hard-coded in production setting
-
+//const APIKEY = "c9287e815af0cb24251ba81236f2fad9"; //<========= this will not be hard-coded in production setting
+const APIKEY = process.env.APIKEY;
 
 /* GET index page. */
 router.get('/', (req, res, next) => {
+	/** Temporary redirect **/
   	res.redirect('/v1/amplitude');
 });
 
@@ -27,10 +28,15 @@ router.post('/v1/amplitude', (req, res) => {
 
 	var e = AmplitudeIntegrationObj.parseEvent(req.body); 
 
-	var event = [];
-	event.push(e);
+	if (!req.body){
+		res.status(400).send(AmplitudeIntegrationObj.errorCodes["missing argument event"].message);
+	}
 
-	AmplitudeIntegrationObj.emitEvent(JSON.stringify(event), (err, response) => {
+	else{
+		var event = [];
+		event.push(e);
+
+		AmplitudeIntegrationObj.emitEvent(JSON.stringify(event), (err, response) => {
 
 			if (err){
 				res.status(500).send("Error registering event"+"\nID: "+e.insert_id);
@@ -46,10 +52,9 @@ router.post('/v1/amplitude', (req, res) => {
 			  	if (!err && response.statusCode == 200) {
 			    	res.status(200).send("Success");
 			  	}
-			}
-
-			
-	});
+			}	
+		});
+	}
 	//res.status(200).send("success");
 });
 
