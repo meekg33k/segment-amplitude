@@ -19,16 +19,21 @@ All project dependencies are in `package.json` file
 
 ## Running the Application
 
-To run and test it locally, run following command after you clone the repo:
+To run and test it locally, you need to create a free account with [Amplitude] (https://amplitude.com/signup). Create a test project so that you can obtain an API key. You may also need to obtain some sample event data from [Segment] (https://segment.com/docs/integrations/amplitude/). 
+
+Once you have cloned the project, the following are the steps to run the application: 
 
 ```
 ### Step I: Install dependencies
-bower install & npm install
+npm install
 
 ### Step II: Start up application server
 npm start
 
-### Step III: Running the tests
+### Step III: Update amplitude-integration module with your api key
+
+
+### Step IV: Run the tests
 npm test
 
 ```
