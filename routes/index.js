@@ -26,13 +26,12 @@ router.post('/v1/amplitude', (req, res) => {
 									.create('amplitude')
 									.passUserAPIKey(apiKey);
 
-	var e = AmplitudeIntegrationObj.parseEvent(req.body); 
-
-	if (!req.body){
+	if (!req.body.event){
 		res.status(400).send(AmplitudeIntegrationObj.errorCodes["missing argument event"].message);
 	}
 
 	else{
+		var e = AmplitudeIntegrationObj.parseEvent(req.body.event); 
 		var event = [];
 		event.push(e);
 

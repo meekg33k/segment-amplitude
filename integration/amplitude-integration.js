@@ -57,7 +57,7 @@ amplitude.emitEvent = function(e, callback){
         function (err, res, body) {
 
         	if (err){
-        		/** This shouldn't happen but... if it does, it's usually from our end **/
+        		/** This shouldn't happen but... if it does, it's our error **/
                 cb(err);
             }
             else {

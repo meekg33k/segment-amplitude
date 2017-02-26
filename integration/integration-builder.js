@@ -6,7 +6,6 @@ var IntegrationBuilder = {};
 
 /** This can be extended for integration with other partners **/
 IntegrationBuilder.create = (type) => {
-
 	switch(type){
 		case 'amplitude':
 			return Amplitude;
@@ -14,8 +13,6 @@ IntegrationBuilder.create = (type) => {
 		default:
 			break;
 	}
-
 }
-
 
 module.exports = IntegrationBuilder;
