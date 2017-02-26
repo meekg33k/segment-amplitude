@@ -37,7 +37,7 @@ npm test
 
 ## Technology Stack
 
-  * Back-End: Express v4.13.4 [https://expressjs.com] (https://expressjs.com), Node js v4.13.1[https://nodejs.org/en] (https://nodejs.org/en)
+  * Back-End: [Express] (https://expressjs.com) v4.13.4, [Node js] (https://nodejs.org/en) v4.13.1
   * Testing: Chai [http://passportjs.org] (http://passportjs.org), Mocha [http://passportjs.org] (http://passportjs.org)
   * Build Tool: Webpack [https://webpack.github.io] (https://webpack.github.io)
 
@@ -64,7 +64,7 @@ Integration
 
 ## Deployment:
 
-This project is currently hosted on Heroku [https://www.heroku.com] (https://www.heroku.com) and the API endpoint is [https://segment-integrations.herokuapp.com] (https://segment-integrations.herokuapp.com) 
+This project is currently hosted on [Heroku] (https://www.heroku.com) and the API endpoint is [https://segment-integrations.herokuapp.com] (https://segment-integrations.herokuapp.com) 
 
 The endpoint for all partner-integrations has a similar endpoint of the form `https://segment-integrations.herokuapp.com/v1/{NAME_OF_PARTNER}`. 
 For example, the Amplitude API endpoint is `https://segment-integrations.herokuapp.com/v1/amplitude`
