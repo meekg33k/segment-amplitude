@@ -1,0 +1,28 @@
+{
+  "name": "segment-amplitude",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "axios": "^0.13.1",
+    "body-parser": "~1.15.1",
+    "chance": "^1.0.3",
+    "cookie-parser": "~1.4.3",
+    "cors": "^2.7.1",
+    "debug": "~2.2.0",
+    "encodeurl": "^1.0.1",
+    "express": "~4.13.4",
+    "express-session": "^1.14.0",
+    "history": "^3.0.0",
+    "hjs": "~0.0.6",
+    "moment": "^2.17.1",
+    "morgan": "~1.7.0",
+    "mysql": "^2.11.1",
+    "node-rest-client": "^2.5.0",
+    "node-uuid": "^1.4.7",
+    "request": "^2.79.0",
+    "serve-favicon": "~2.3.0"
+  }
+}
