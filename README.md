@@ -5,7 +5,7 @@
 
 ## Project Description
 
-Refer to ProjectDescription.md [https://facebook.github.io/react/] (https://facebook.github.io/react/) for a detailed description of the scope of this project.
+Refer to [Project Description] (https://facebook.github.io/react/) for a detailed description of the scope of this project.
 
 
 
@@ -64,9 +64,10 @@ Integration
 
 ## Deployment:
 
-This application is currently hosted on Heroku [https://www.heroku.com] (https://www.heroku.com) and API endpoint is [https://segment-integrations.herokuapp.com] (https://segment-integrations.herokuapp.com) 
+This project is currently hosted on Heroku [https://www.heroku.com] (https://www.heroku.com) and the API endpoint is [https://segment-integrations.herokuapp.com] (https://segment-integrations.herokuapp.com) 
 
 The endpoint for all partner-integrations has a similar endpoint of the form `https://segment-integrations.herokuapp.com/v1/{NAME_OF_PARTNER}`. 
 For example, the Amplitude API endpoint is `https://segment-integrations.herokuapp.com/v1/amplitude`
 
 To deploy on Heroku, use command `git push heroku master`
+
