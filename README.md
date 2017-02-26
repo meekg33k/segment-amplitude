@@ -48,12 +48,12 @@ npm test
 
 To add implementation for integration with other partners, after an accepted Git Pull request, you need to create the following modules:
 
-Router
+### Router
   * Define integration endpoint: `/v1/{NAME_OF_PARTNER}`. For example, to integrate with Marketo, the endpoint would be: `/v1/marketo`
   * Include endpoint in `/routes/index.js`
   * (Optional) Create test for new endpoint in : `/tests/index.js`
 
-Integration
+### Integration
   * Create `/integration/{NAME_OF_PARTNER}-integration.js` module that would contain all the specific integration details for partner.
   * Modify `/integration/integration-builder.js` to include integration object for new partner.
   * (Optional) Create test for new integration module in `/tests/{NAME_OF_PARTNER}-integration.js`
