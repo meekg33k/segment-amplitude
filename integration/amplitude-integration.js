@@ -2,92 +2,106 @@
 
 var moment = require('moment');
 var request = require('request');
+const endpoint = 'https://api.amplitude.com/httpapi';
 
-var amplitude = {};
-var APIKEY;
+/** Global function for sending event to Amplitude**/
+function sendEvent(event, apikey, callback){
 
-/** Global variables for retries after Error 503 **/
-var count = 0;
-var cb;
-var event;
-var id;
+	request.post(endpoint+'?api_key='+apikey+'&event='+event, 
+		(err, res, body) => {
+        	if (err)
+        		callback(err);
+            else 
+            	callback(null, res);
+    });
+} 
 
+/** Amplitude-Integration Object **/
+var Amplitude = function(){
 
-amplitude.endpoint = 'https://api.amplitude.com/httpapi';
-amplitude.errorCodes = {
-	"missing argument api_key": {
-		"status": 403,
-		"message": "No Amplitude API Key provided"
-	},
-	"invalid api_key": {
-		"status": 403,
-		"message": "Invalid Amplitude API Key"
-	},
-	"missing argument event": {
-		"status": 400,
-		"message": "No Event Params provided"
-	},
-	"invalid event json": {
-		"status": 400,
-		"message": "Invalid Event Format"
+	/** Variables for Error 503 retries **/
+	this.count = 0;
+	this.id = 0;
+
+	this.errorCodes = {
+		"missing argument api_key": {
+			"status": 403,
+			"message": "No Amplitude API Key provided"
+		},
+		"invalid api_key": {
+			"status": 403,
+			"message": "Invalid Amplitude API Key"
+		},
+		"missing argument event": {
+			"status": 400,
+			"message": "No Event Params provided"
+		},
+		"invalid event json": {
+			"status": 400,
+			"message": "Invalid Event Format"
+		}
+	};
+}
+
+Amplitude.prototype.getError = function (msg, eventId){
+
+	if (this.errorCodes[msg]){
+		var errorObj = this.errorCodes[msg];
+		errorObj.eventId = eventId;
 	}
-};
+	else{
+		var errorObj = {
+			"message": msg,
+			"eventId": eventId
+		}
+	}
+	return errorObj;
+}
 
-amplitude.emitEvent = function(e, callback){
-
-    //Clear interval from previous retries
-    clearInterval(id);
-    id = undefined;
-
-    if (callback){
-    	cb = callback;
-    }
+Amplitude.prototype.emitEvent = function(e, cb){
 
     if (e){
-    	event = e;
+    	this.event = e;
     }
+    var self = this;
 
-    /*count++;
-    console.log("Call "+count);*/
+    this.callback = function(err, res){
+	    //Clear interval from previous retries
+	    if (self.id){
+	    	clearInterval(self.id);
+	    	self.id = undefined;
+	    }
 
-
-    // Make a call to Amplitude's HTTP API endpoint
-    request.post(amplitude.endpoint+'?api_key='+APIKEY+'&event='+event, 
-    //request.post(amplitude.endpoint+'?api_key='+APIKEY+'&event=[{"user_id":"john_doe@gmail.com", "event_type":"watch_tutorial", "user_properties":{"Cohort":"Test A"}, "country":"United States", "ip":"127.0.0.1", "time":1396381378123}]', 
-        function (err, res, body) {
-
-        	if (err){
-        		/** This shouldn't happen but... if it does, it's our error **/
-                cb(err);
+    	if (err){
+    		//This shouldn't happen but... if it does, it's our error **/
+            cb(err);
+        }
+        else {
+        	if (res.statusCode == 503){
+        		/** Retries **/
+        		if (self.count == 10){
+        			self.count = 0; //Reset count
+    			    clearInterval(self.id);
+        			cb({"status": 503}, null); //Trigger error
+        		}
+        		else{
+        			if (!self.id){
+					    self.count++;
+					    console.log("Retrying.... "+self.count);
+	                    self.id = setInterval(sendEvent.bind(null, self.event, self.api_key, self.callback), 3000);
+	                }
+        		}
             }
-            else {
-            	 
-	        	if (res.statusCode == 400){
-	        		/** Retries **/
-	        		if (count == 10){
-	        			count = 0; //Reset count
-        			    clearInterval(id);
-	        			cb(true, null); //Trigger error
-	        		}
-	        		else{
-	        			if (!id){
-		                    id = setInterval(amplitude.emitEvent, 1000);
-		                }
-	        		}
-	            }
-	            else{
-		            cb(null, res);
-	            }
+            else{
+	            cb(null, res);
             }
-    });
+        }
+    }
+    //Send event to Amplitude's HTTP API endpoint
+    sendEvent(e, this.api_key, this.callback);
 };
 
-amplitude.passUserAPIKey = function(apiKey){
-	APIKEY = apiKey;
-	return this;
-};
-
-amplitude.parseEvent = function(event){
+Amplitude.prototype.parseEvent = function(event){
 
 	var convertedEvent = {};
 	var user_properties;
@@ -133,8 +147,14 @@ amplitude.parseEvent = function(event){
 	convertedEvent.adid = event.context.device.id; 
 	convertedEvent.insert_id = event.id || event.messageId;
 
+	this.event = convertedEvent;
+
 	return convertedEvent;
 };
 
+Amplitude.prototype.passUserAPIKey = function(apiKey){
+	this.api_key = apiKey;
+	return this;
+};
 
-module.exports = amplitude;
+module.exports = Amplitude;
