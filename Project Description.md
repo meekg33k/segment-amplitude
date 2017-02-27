@@ -12,7 +12,7 @@ The main objective of this project is to process event data from a user's projec
 
 This project focuses on parsing the event data, converting it into a format as detailed in Amplitude HTTP API documentation [https://amplitude.zendesk.com/hc/en-us/articles/204771828-HTTP-API] (https://amplitude.zendesk.com/hc/en-us/articles/204771828-HTTP-API) and sending it to Amplitude.
 
-It does not explore other ways of sending event data to Amplitude and assumes the presence of a valid API key used to communicate with Amplitude. The scope of this project also doesn't provide error-handling for error code 429 (too_many_requests_for_device) but it does provide error-handling for error code 503 (server_error).
+It does not explore other ways of sending event data to Amplitude and assumes the presence of a valid API key used to communicate with Amplitude. The scope of this project also doesn't provide error-handling for error code 429 (too_many_requests_for_device) but it does provide error-handling for errors with code 503 (server_error).
 
 
 
@@ -24,27 +24,27 @@ A brief description of the core directories in this project:
 
   * `routes`: directory containing the API routes. 
 
-  * `tests`: contains all the unit tests for this project.
+  * `test`: contains test cases for this project. Details for running the tests can be found in the Project README file.
 
 
 
 ## How it works 
 
-To send an event to Amplitude, pass the event as part of the body of a POST request to the endpoint (https://segment-integrations.herokuapp.com/v1/amplitude). 
+To send an event to Amplitude, pass the event (JSON) as part of the body of a POST request to the endpoint (https://segment-integrations.herokuapp.com/v1/amplitude). 
 
- * POST request hits the endpoint, a call is made to `integration-builder`
+ * When POST request hits the endpoint, a call is made to `integration-builder`.
 
- * Based on the route, the `integration-builder` creates the specific integration object; in this case `amplitude-integration`
+ * Based on the route, the `integration-builder` creates an instance of the specific integration object; in this case `amplitude-integration`
 
- * The `amplitude-integration` object which has Amplitude's endpoint and the APIKEY, parses the event, transforming it in to the required format as defined in the Amplitude HTTP API documentation.
+ * The newly created instance of `amplitude-integration` worker has access to Amplitude's endpoint from the global `amplitude-integration` object. The workerr parses the event, representing it in the required format as defined in Amplitude's HTTP API documentation. It also maintains a `count` attribute which it uses for error-handling.
 
- * The `amplitude-integration` object then emits the processed event to Amplitude's HTTP API endpoint and based on the response, it sends the status to the client.
+ * The `amplitude-integration` worker then sends the processed event using the global `amplitude-integration`'s sendEvent function and the user's api key (obtained from the production environment variables or hard-coded, if running locally) to Amplitude's HTTP API endpoint. When the response is received from Amplitude, a response object (JSON) is sent to the client except when an Error 503 occurs.
 
 
 
 ## Error Handling 
 
-The `amplitude-integration` object has a dictionary of error response codes and messages codes (based on Amplitude's error responses). These codes are:
+The `amplitude-integration` object has a dictionary of error response codes and messages codes where the keys are the exact error messages from Amplitude's HTTP API calls. These codes (which aren't exhaustive) include:
  
  "missing argument api_key": {
     "status": 403,
@@ -63,6 +63,6 @@ The `amplitude-integration` object has a dictionary of error response codes and 
     "message": "Invalid Event Format"
   }
 
-  For all error responses sent back to the client, the `message/event id` for the failed event is also included.
+  Other error types are sent exactly the same way as received from Amplitude's HTTP API. For the above error codes sent back to the client, the `message/event id` for the failed event is also included.
 
- * For handling error with status code 503, `amplitude-integration` tries to resend the event for 10 times at 3 seconds interval, and if failure persists after the tenth time, it sends an error with status code 500 with the event ID and error message: 'Error registering event'. 
+ * For handling error with status code 503, the worker instance of `amplitude-integration` tries to resend the event 10 times at 3 seconds interval. If failure persists after the tenth time, it sends an error object to the client with status 500, the event ID and error message: 'Error registering event'. 
