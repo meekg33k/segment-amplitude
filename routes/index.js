@@ -1,61 +1,60 @@
+'use strict';
+
 var express = require('express');
 var router = express.Router();
 var request = require('request');
-
 var IntegrationBuilder = require('../integration/integration-builder');
-//const APIKEY = "c9287e815af0cb24251ba81236f2fad9"; //<========= this will not be hard-coded in production setting
-const APIKEY = process.env.APIKEY;
+const APIKEY = process.env.APIKEY || "YOUR_API_KEY"; //<========= insert your API_KEY here
 
-/* GET index page. */
+
 router.get('/', (req, res, next) => {
 	/** Temporary redirect **/
   	res.redirect('/v1/amplitude');
 });
 
-
 router.get('/v1/amplitude', (req, res, next) => {
   	res.sendFile(__dirname.substring(0, __dirname.length - 6) + '/views/info.html');
 });
 
-
 router.post('/v1/amplitude', (req, res) => {
-	var apiKey = APIKEY;
+	var apiKey = req.body.api_key || APIKEY; //<==== Strictly for testing purposes
 
-	/* Create Amplitude-Integration object **/
-	AmplitudeIntegrationObj = IntegrationBuilder
+	var AmplitudeIntegrationObj = IntegrationBuilder
 									.create('amplitude')
 									.passUserAPIKey(apiKey);
 
 	if (!req.body.event){
-		res.status(400).send(AmplitudeIntegrationObj.errorCodes["missing argument event"].message);
+		res.status(400).send(AmplitudeIntegrationObj.errorCodes["missing argument event"]);
 	}
-
 	else{
 		var e = AmplitudeIntegrationObj.parseEvent(req.body.event); 
 		var event = [];
 		event.push(e);
 
 		AmplitudeIntegrationObj.emitEvent(JSON.stringify(event), (err, response) => {
-
 			if (err){
-				res.status(500).send("Error registering event"+"\nID: "+e.insert_id);
+				console.log(err);
+				res.status(500).send(AmplitudeIntegrationObj.getError("Error registering event", e.insert_id));
 			}
 			else{
 
 				if (response.statusCode != 200){
-					res.status(AmplitudeIntegrationObj.errorCodes[response.body].status)
-							.send(AmplitudeIntegrationObj.errorCodes[response.body].message+"\nID: "+e.insert_id);
+					if (AmplitudeIntegrationObj.errorCodes[response.body]){
+						/** Our-Defined Errors **/
+						res.status(AmplitudeIntegrationObj.errorCodes[response.body].status)
+							.send(AmplitudeIntegrationObj.getError(response.body, e.insert_id));
+					}
+					else{
+						/** Amplitude-Defined Errors **/
+						res.status(400).send(AmplitudeIntegrationObj.getError(response.body, e.insert_id));
+					}
 				}
-
-
 			  	if (!err && response.statusCode == 200) {
-			    	res.status(200).send("Success");
+			    	res.status(200).send({"message": "Success"});
 			  	}
 			}	
 		});
 	}
-	//res.status(200).send("success");
 });
-
 
 module.exports = router;
