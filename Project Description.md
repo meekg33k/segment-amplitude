@@ -65,4 +65,4 @@ The `amplitude-integration` object has a dictionary of error response codes and 
 
   Other error types are sent exactly the same way as received from Amplitude's HTTP API. For the above error codes sent back to the client, the `message/event id` for the affected event is also included in the message sent to the client.
 
- * For handling error with status code 503, the worker instance of `amplitude-integration` tries to resend the event 10 times at 3 seconds interval. If failure persists after the tenth time, it sends a status of 500 back to the client with an error object contaninig the event ID and message: 'Error registering event'. 
+ * For handling error with status code 503, the worker instance of `amplitude-integration` tries to resend the event 10 times at 3 seconds interval. If failure persists after the tenth time, it sends a status of 500 back to the client with an error object containing the event ID and message: 'Error registering event'. 

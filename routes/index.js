@@ -12,16 +12,16 @@ router.get('/', (req, res, next) => {
   	res.redirect('/v1/amplitude');
 });
 
+
 router.get('/v1/amplitude', (req, res, next) => {
   	res.sendFile(__dirname.substring(0, __dirname.length - 6) + '/views/info.html');
 });
 
+
 router.post('/v1/amplitude', (req, res) => {
 	var apiKey = req.body.api_key || APIKEY; //<==== Strictly for testing purposes
 
-	var AmplitudeIntegrationObj = IntegrationBuilder
-									.create('amplitude')
-									.passUserAPIKey(apiKey);
+	var AmplitudeIntegrationObj = IntegrationBuilder.create('amplitude').passUserAPIKey(apiKey);
 
 	if (!req.body.event){
 		res.status(400).send(AmplitudeIntegrationObj.errorCodes["missing argument event"]);
@@ -37,7 +37,6 @@ router.post('/v1/amplitude', (req, res) => {
 				res.status(500).send(AmplitudeIntegrationObj.getError("Error registering event", e.insert_id));
 			}
 			else{
-
 				if (response.statusCode != 200){
 					if (AmplitudeIntegrationObj.errorCodes[response.body]){
 						/** Our-Defined Errors **/
@@ -56,5 +55,6 @@ router.post('/v1/amplitude', (req, res) => {
 		});
 	}
 });
+
 
 module.exports = router;

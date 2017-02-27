@@ -86,10 +86,10 @@ Amplitude.prototype.emitEvent = function(e, cb){
         		}
         		else{
         			if (!self.id){
-					    self.count++;
-					    console.log("Retrying.... "+self.count);
-	                    self.id = setInterval(sendEvent.bind(null, self.event, self.api_key, self.callback), 3000);
-	                }
+        				self.count++;
+        				console.log("Retrying.... "+self.count);
+        				self.id = setInterval(sendEvent.bind(null, self.event, self.api_key, self.callback), 3000);
+        			}
         		}
             }
             else{
